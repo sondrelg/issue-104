@@ -1,0 +1,38 @@
+on: push
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout git repository 🕝
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.9 🐍
+        uses: actions/setup-python@0ebf233433c08fb9061af664d501c3f3ff0e9e20  # v3.0
+        with:
+          python-version: '3.9'
+
+      - name: Cache poetry install
+        uses: actions/cache@v2
+        with:
+          path: ~/.local
+          key: poetry-1.1.13-0
+
+      - uses: snok/install-poetry@2bf112a0f6979928eb6b011f39700db589c5961e
+        with:
+          version: 1.1.13
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Cache python dependencies
+        id: cache-deps
+        uses: actions/cache@v2
+        with:
+          path: services/analytics/.venv
+          key: pydeps-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install Dependencies & Project📦
+        run: |
+          poetry run python -m pip install -U pip
